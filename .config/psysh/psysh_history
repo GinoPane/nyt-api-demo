@@ -1,0 +1,2 @@
+DB::table('users')->all()
+DB::table('users')->get()->all()
