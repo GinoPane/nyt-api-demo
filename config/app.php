@@ -123,4 +123,8 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'nyt_api' => [
+        'base_url' => env('NYT_API_BASE_URL'),
+        'key' => env('NYT_API_KEY'),
+    ]
 ];
