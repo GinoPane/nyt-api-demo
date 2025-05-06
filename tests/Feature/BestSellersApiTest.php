@@ -29,9 +29,9 @@ class BestSellersApiTest extends TestCase
         ]);
 
         $response->assertStatus(200);
-        $this->assertSame(1, $response->json('count'));
-        $this->assertCount(1, $response->json('results'));
-        $this->assertSame('INFERNO', $response->json('results')[0]['title']);
+        $this->assertSame(1, $response->json('data.count'));
+        $this->assertCount(1, $response->json('data.results'));
+        $this->assertSame('INFERNO', $response->json('data.results')[0]['title']);
     }
 
     public function test_get_list_works_for_author(): void
@@ -41,9 +41,9 @@ class BestSellersApiTest extends TestCase
         ]);
 
         $response->assertStatus(200);
-        $this->assertSame(5, $response->json('count'));
-        $this->assertCount(5, $response->json('results'));
-        $this->assertSame('ANGELS AND DEMONS', $response->json('results')[0]['title']);
+        $this->assertSame(5, $response->json('data.count'));
+        $this->assertCount(5, $response->json('data.results'));
+        $this->assertSame('ANGELS AND DEMONS', $response->json('data.results')[0]['title']);
     }
 
     public function test_get_list_works_for_title(): void
@@ -53,8 +53,8 @@ class BestSellersApiTest extends TestCase
         ]);
 
         $response->assertStatus(200);
-        $this->assertSame(1, $response->json('count'));
-        $this->assertCount(1, $response->json('results'));
-        $this->assertSame('ANGELS AND DEMONS', $response->json('results')[0]['title']);
+        $this->assertSame(1, $response->json('data.count'));
+        $this->assertCount(1, $response->json('data.results'));
+        $this->assertSame('ANGELS AND DEMONS', $response->json('data.results')[0]['title']);
     }
 }

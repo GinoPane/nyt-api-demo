@@ -4,38 +4,49 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class AuthController extends Controller
 {
-    public function login(Request $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-            'device_name' => 'required',
-        ]);
+        $user = User::where('email', $request->email)->firstOrFail();
 
-        $user = User::where('email', $request->email)->first();
+        if (!Hash::check($request->password, $user->password)) {
+            Log::warning('Failed login attempt', ['email' => $request->email, 'device' => $request->device_name]);
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect'],
-            ]);
+            return response()->json(
+                ['error' => 'The provided credentials are incorrect'],
+                Response::HTTP_UNAUTHORIZED
+            );
         }
 
-        $user->tokens()->where('name', $request->device_name)->delete();
+        try {
+            $user->tokens()->where('name', $request->device_name)->delete();
+            $token = $user->createToken($request->device_name);
+        } catch (Throwable $e) {
+            Log::error('Failed to login user: ' . $e->getMessage());
 
-        $token = $user->createToken($request->device_name);
+            return response()->json(
+                ['error' => 'Unable to process the token request'],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
 
         return response()->json([
-            'token' => $token->plainTextToken,
-            'user' => $user
+            'success' => true,
+            'data' => [
+                'token' => $token->plainTextToken,
+                'user' => $user->only(['id', 'email', 'name'])
+            ]
         ]);
     }
 
@@ -43,6 +54,6 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Logged out successfully']);
+        return response()->json(['status' => true, 'message' => 'Logged out successfully']);
     }
 }

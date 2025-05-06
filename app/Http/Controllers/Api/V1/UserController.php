@@ -12,6 +12,11 @@ class UserController extends Controller
 {
     public function show(Request $request): JsonResponse
     {
-        return response()->json($request->user());
+        return response()->json([
+                'success' => true,
+                'data' => [
+                    'user' => $request->user()->only(['id', 'name', 'email'])
+                ]
+            ]);
     }
 }

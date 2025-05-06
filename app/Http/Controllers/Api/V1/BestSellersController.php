@@ -13,6 +13,9 @@ class BestSellersController
 {
     public function getList(BestSellersRequest $request, ApiClient $client): JsonResponse
     {
-        return response()->json($client->getBestsellersHistory(GetBestsellersListRequest::fromRequest($request)));
+        return response()->json([
+            'status' => true,
+            'data' => $client->getBestsellersHistory(GetBestsellersListRequest::fromRequest($request))
+        ]);
     }
 }

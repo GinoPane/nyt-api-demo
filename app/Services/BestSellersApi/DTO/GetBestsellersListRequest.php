@@ -29,6 +29,9 @@ class GetBestsellersListRequest
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toQuery(): array
     {
         $params = [];

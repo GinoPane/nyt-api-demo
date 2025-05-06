@@ -34,7 +34,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertStatus(200);
-        $response->assertJsonStructure(['token']);
+        $response->assertJsonStructure(['data' => ['token']]);
 
         // Verify the token is actually stored in the database
         $this->assertDatabaseCount('personal_access_tokens', 1);
@@ -48,7 +48,7 @@ class AuthenticationTest extends TestCase
             'device_name' => 'test_device',
         ]);
 
-        $response->assertStatus(422);
+        $response->assertStatus(401);
         $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 
@@ -63,7 +63,7 @@ class AuthenticationTest extends TestCase
                 'device_name' => 'test_device',
             ]);
 
-            $response->assertStatus(422);
+            $response->assertStatus(401);
         }
 
         $response = $this->postJson('/api/v1/login', [
@@ -84,7 +84,7 @@ class AuthenticationTest extends TestCase
             'device_name' => 'test_device',
         ]);
 
-        $token = $loginResponse->json('token');
+        $token = $loginResponse->json('data.token');
 
         // Use the token to access a protected route
         $response = $this->getJson('/api/v1/user', [
@@ -93,9 +93,13 @@ class AuthenticationTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson([
-            'id' => $this->user->id,
-            'name' => $this->user->name,
-            'email' => $this->user->email,
+            'data' => [
+                'user' => [
+                    'id' => $this->user->id,
+                    'name' => $this->user->name,
+                    'email' => $this->user->email,
+                ]
+            ]
         ]);
     }
 
@@ -124,7 +128,7 @@ class AuthenticationTest extends TestCase
             'device_name' => 'test_device',
         ]);
 
-        $token = $loginResponse->json('token');
+        $token = $loginResponse->json('data.token');
 
         $response = $this->getJson('/api/v1/user', [
             'Authorization' => 'Bearer invalid_token',
