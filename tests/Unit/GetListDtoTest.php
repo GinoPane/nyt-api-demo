@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Http\Requests\BestSellersRequest;
-use App\Services\BestSellersApi\DTO\GetListRequest;
+use App\Services\BestSellersApi\DTO\GetBestsellersListRequest;
 use Mockery;
 use Tests\TestCase;
 
@@ -19,9 +19,9 @@ class GetListDtoTest extends TestCase
             'offset' => 20,
         ]);
 
-        $getList = GetListRequest::fromRequest($requestMock);
+        $getList = GetBestsellersListRequest::fromRequest($requestMock);
 
-        $this->assertInstanceOf(GetListRequest::class, $getList);
+        $this->assertInstanceOf(GetBestsellersListRequest::class, $getList);
         $this->assertSame('John Doe', $getList->author);
         $this->assertSame('Sample Title', $getList->title);
         $this->assertSame(['1234567890', '0987654321'], $getList->isbn);
@@ -38,10 +38,17 @@ class GetListDtoTest extends TestCase
             'offset' => 20,
         ]);
 
-        $getList = GetListRequest::fromRequest($requestMock);
+        $expected = [
+            'author' => 'John Doe',
+            'title' => 'Sample Title',
+            'isbn' => '1234567890;0987654321',
+            'offset' => 20,
+        ];
 
-        $this->assertInstanceOf(GetListRequest::class, $getList);
-        $this->assertSame('author=John+Doe&title=Sample+Title&isbn=1234567890%3B0987654321&offset=20&api-key=' . urlencode(config('app.nyt_api.key')), $getList->toQueryFormat());
+        $getList = GetBestsellersListRequest::fromRequest($requestMock);
+
+        $this->assertInstanceOf(GetBestsellersListRequest::class, $getList);
+        $this->assertSame($expected, $getList->toQuery());
     }
 
     public function test_from_request_with_partial_data(): void
@@ -52,9 +59,9 @@ class GetListDtoTest extends TestCase
             'offset' => 20,
         ]);
 
-        $getList = GetListRequest::fromRequest($requestMock);
+        $getList = GetBestsellersListRequest::fromRequest($requestMock);
 
-        $this->assertInstanceOf(GetListRequest::class, $getList);
+        $this->assertInstanceOf(GetBestsellersListRequest::class, $getList);
         $this->assertSame('Jane Smith', $getList->author);
         $this->assertNull($getList->title);
         $this->assertNull($getList->isbn);
@@ -66,9 +73,9 @@ class GetListDtoTest extends TestCase
         $requestMock = Mockery::mock(BestSellersRequest::class);
         $requestMock->shouldReceive('validated')->andReturn([]);
 
-        $getList = GetListRequest::fromRequest($requestMock);
+        $getList = GetBestsellersListRequest::fromRequest($requestMock);
 
-        $this->assertInstanceOf(GetListRequest::class, $getList);
+        $this->assertInstanceOf(GetBestsellersListRequest::class, $getList);
         $this->assertNull($getList->author);
         $this->assertNull($getList->title);
         $this->assertNull($getList->isbn);

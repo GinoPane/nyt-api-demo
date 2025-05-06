@@ -126,5 +126,6 @@ return [
     'nyt_api' => [
         'base_url' => env('NYT_API_BASE_URL'),
         'key' => env('NYT_API_KEY'),
+        'bestsellers_history' => env('NYT_API_BESTSELLERS_HISTORY', 'books/v3/lists/best-sellers/history.json'),
     ]
 ];

@@ -6,7 +6,7 @@ namespace App\Services\BestSellersApi\DTO;
 
 use App\Http\Requests\BestSellersRequest;
 
-class GetListRequest
+class GetBestsellersListRequest
 {
     public function __construct(
         public ?string $author,
@@ -29,7 +29,7 @@ class GetListRequest
         );
     }
 
-    public function toQueryFormat(): string
+    public function toQuery(): array
     {
         $params = [];
 
@@ -50,8 +50,7 @@ class GetListRequest
         }
 
         $params['offset'] = (int) $this->offset;
-        $params['api-key'] = config('app.nyt_api.key');
 
-        return http_build_query($params);
+        return $params;
     }
 }

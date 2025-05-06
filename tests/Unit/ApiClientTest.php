@@ -3,8 +3,8 @@
 namespace Tests\Unit\Services\BestSellersApi;
 
 use App\Services\BestSellersApi\ApiClient;
-use App\Services\BestSellersApi\DTO\GetListRequest;
-use App\Services\BestSellersApi\DTO\GetListResponse;
+use App\Services\BestSellersApi\DTO\GetBestsellersListRequest;
+use App\Services\BestSellersApi\DTO\GetBestsellersListResponse;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 use Tests\TestCase;
@@ -21,7 +21,7 @@ class ApiClientTest extends TestCase
 
     public function testGetListReturnsData(): void
     {
-        $request = new GetListRequest(author: 'Diana Gabaldon', title: 'I GIVE YOU MY BODY ...', isbn: ['0399178570'], offset: 0);
+        $request = new GetBestsellersListRequest(author: 'Diana Gabaldon', title: 'I GIVE YOU MY BODY ...', isbn: ['0399178570'], offset: 0);
 
         $mockedResponse = json_decode('{
   "status": "OK",
@@ -74,9 +74,9 @@ class ApiClientTest extends TestCase
             '*' => Http::response($mockedResponse, 200),
         ]);
 
-        $response = $this->apiClient->getList($request);
+        $response = $this->apiClient->getBestsellersHistory($request);
 
-        $this->assertInstanceOf(GetListResponse::class, $response);
+        $this->assertInstanceOf(GetBestsellersListResponse::class, $response);
         $this->assertEquals(1, $response->count);
         $this->assertSame('"I GIVE YOU MY BODY ..."', $response->results[0]['title']);
         $this->assertSame('Diana Gabaldon', $response->results[0]['author']);
@@ -87,7 +87,7 @@ class ApiClientTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Error fetching bestsellers: Offset not a multiple of paging size 20');
 
-        $request = new GetListRequest(author: 'Jane Doe', title: 'Another Title', isbn: null, offset: -1);
+        $request = new GetBestsellersListRequest(author: 'Jane Doe', title: 'Another Title', isbn: null, offset: -1);
 
         $mockedResponse = json_decode('{
   "status": "ERROR",
@@ -103,12 +103,12 @@ class ApiClientTest extends TestCase
             '*' => Http::response($mockedResponse, 400),
         ]);
 
-        $this->apiClient->getList($request);
+        $this->apiClient->getBestsellersHistory($request);
     }
 
     public function testGetListHandlesEmptyResults(): void
     {
-        $request = new GetListRequest(author: null, title: null, isbn: null, offset: 0);
+        $request = new GetBestsellersListRequest(author: null, title: null, isbn: null, offset: 0);
 
         $mockedResponse = [
             'num_results' => 0,
@@ -119,9 +119,9 @@ class ApiClientTest extends TestCase
             '*' => Http::response($mockedResponse, 200),
         ]);
 
-        $response = $this->apiClient->getList($request);
+        $response = $this->apiClient->getBestsellersHistory($request);
 
-        $this->assertInstanceOf(GetListResponse::class, $response);
+        $this->assertInstanceOf(GetBestsellersListResponse::class, $response);
         $this->assertEquals(0, $response->count);
         $this->assertEquals([], $response->results);
     }
@@ -131,7 +131,7 @@ class ApiClientTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Error fetching bestsellers: Unknown error');
 
-        $request = new GetListRequest(author: 'Unknown', title: null, isbn: null, offset: 10);
+        $request = new GetBestsellersListRequest(author: 'Unknown', title: null, isbn: null, offset: 10);
 
         $mockedResponse = [];
 
@@ -139,6 +139,6 @@ class ApiClientTest extends TestCase
             '*' => Http::response($mockedResponse, 500),
         ]);
 
-        $this->apiClient->getList($request);
+        $this->apiClient->getBestsellersHistory($request);
     }
 }
