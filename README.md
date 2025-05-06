@@ -1,5 +1,5 @@
 # nyt-api-demo
-Demo project for NYT Bestseller's API
+Demo project for NYT Bestsellers API
 
 ### Build Application
 
